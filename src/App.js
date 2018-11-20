@@ -1,49 +1,67 @@
 import React, { Component} from 'react';
-// import TodoList from './todoList/TodoList'
-
-// import Button from './Context/life'
-// import Toolbar from './Context'
-
-//使用Context
-// const ThemeContext = React.createContext('light');
-// function ThemedButton(props) {
-//   // ThemedButton 组件从 context 接收 theme
-//   return (
-//     <ThemeContext.Consumer>
-//        {/*Consumer接收一个函数作为子节点，接受当前context的值并返回一个React节点*/}
-//       {theme => <button>{theme}</button>} 
-//     </ThemeContext.Consumer>
-//   );
-// }
-// // 中间组件
-// function Toolbar(props) {
-//   return (
-//       <ThemedButton />
-//   );
-// }
-// import Form from './Form/index'
-// import Calculator from './StateIncrement/index'
-// import Communication from './Communication/index'
-// import Father from './Communication/EventBus/index'
-import HocExample from './Hoc/HocExample'
+import {
+  Route,
+  NavLink, //与Link相似 多了一个active类名
+  Redirect,
+  Switch
+} from 'react-router-dom'
+import qs from 'querystring'
+import urlObj from 'url'
+import {ActiveNavLink,ActiveOwnNavLink} from './React-router/ItemUse/index'
+// import Started from './styledComponents/Basics/index'
+// import RouterInstance from './React-router/index'
+// import ItemUse from './React-router/ItemUse/index'
+const User = (props)=>{
+  let url = props.location.search
+  // url.parse(urlString,boolean)parse这个方法可以将一个url的字符串解析并返回一个url的对象,设置第二个参数为true时，query属性为一个对象
+  let query = urlObj.parse(url,true).query
+  return (
+    <div>
+       <h1>个人心中页面</h1>
+       <h2>个人ID:{props.match.params.id}</h2>
+       <h2>姓名:{query.name}</h2>
+       <h2>年龄:{query.age}</h2>
+    </div>
+  )
+}
 class App extends Component {
   render() {
+    let query = {name:'小昭',age:20}
     return (
-      //jsx语法
-      <div className="App">
-          {/* <TodoList />
-          <Button /> */}
-          {/* <Toolbar theme={'dark'} /> */}
-          {/**
-            <ThemeContext.Provider value="dark">
-              <Toolbar />
-            </ThemeContext.Provider>
-           */}
-           {/* <Form /> */}
-           {/* <Calculator /> */}
-           {/* <Communication /> */}
-           {/* <Father /> */}
-           <HocExample />
+      <div className="App container">
+          <div className="panel panel-default">
+              <div className="panel-heading">
+                 <ActiveOwnNavLink tag="button" to="/home">Home</ActiveOwnNavLink><br />
+                 <ActiveNavLink to="/about">About</ActiveNavLink><br />
+                 <ActiveNavLink to={{ pathname:'/users/2',search:'?'+qs.stringify(query) }}>Users</ActiveNavLink>
+              </div>
+          </div>
+          <Switch>
+              <Redirect path="/" exact to="/home"></Redirect>
+              <Route path="/home"  render={()=><h2>这是主页面</h2>} />
+              <Route path="/about"  render={()=>{
+                 return (
+                   <div>
+                       <h2>这是关于页面</h2>
+                       <p>Language:
+                         <NavLink to='/about/cn'>CN</NavLink>&nbsp;
+                         <NavLink to='/about/en'>EN</NavLink>
+                       </p>
+                       <Switch>
+                          <Redirect path="/about" exact to="/about/cn"></Redirect>
+                          <Route path="/about/cn" render={()=><h1>活动页</h1>}></Route>
+                          <Route path="/about/en" render={()=><h1>action pages</h1>}></Route>
+                       </Switch>
+                       
+                   </div>
+                 )
+              }} />
+              {/* 路由传参：Params */}
+              <Route path="/users/:id"  component={User} />
+              <Route path="/not-Fount"  render={()=><h2>无法找到页面<NavLink to="/home">回到首页</NavLink></h2>} />
+              <Redirect to="/not-Fount"></Redirect>
+          </Switch>
+          
       </div>
     );
   }
